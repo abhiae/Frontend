@@ -15,6 +15,13 @@ srgan.eval()
 srresnet = torch.load(srresnet_checkpoint,map_location=torch.device(device))['model']
 srresnet.eval()
 
+def downsample(hr_img):
+    hr_img = Image.open(hr_img, mode="r")
+    hr_img = hr_img.convert('RGB')
+    lr_img = hr_img.resize((int(hr_img.width / 4), int(hr_img.height / 4)),
+                       Image.BICUBIC)
+    return hr_img,lr_img
+
 def superresolve_bicubic(lr_img):
     bicubic_img = lr_img.resize((lr_img.width*4, lr_img.height*4), Image.BICUBIC)
     st.image(bicubic_img,caption="Bicubic")
@@ -42,7 +49,7 @@ def load_images_from_folder(folder_path):
 def main():
     st.markdown('<h2 align="center">Image Super Resolution</h1>',unsafe_allow_html=True)
     # load images from the folder into a array
-    folder_path="./lr_images"
+    folder_path="./images"
     images_list = load_images_from_folder(folder_path)
 
     selected_image = st.selectbox("Select an Image",images_list)
@@ -50,8 +57,7 @@ def main():
     if selected_image:
         image_path = os.path.join(folder_path,selected_image)
 
-        lr_img = Image.open(image_path,mode='r')
-        lr_img = lr_img.convert('RGB')
+        hr_img,lr_img = downsample(image_path)
         st.markdown("Input Image")
         st.image(lr_img,caption = "LR Image")
 
@@ -61,12 +67,10 @@ def main():
         col1,col2 = st.columns(2)
         with col1:
             superresolve_bicubic(lr_img)
-        with col2:
             superresolve_srresnet(lr_img)
+        with col2:
             superresolve_srgan(lr_img)
-
-
-
-
+            st.image(hr_img,caption="Original")
+            
 if __name__ == "__main__":
     main()
