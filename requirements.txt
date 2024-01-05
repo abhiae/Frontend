@@ -1,0 +1,4 @@
+pip
+torch
+streamlit
+torchvision
