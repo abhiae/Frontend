@@ -18,6 +18,8 @@ def is_image(file):
     # Check if the file type is an image
     return file.type.startswith('image/')
 
+def is_not_big(file):
+    return True
 def superresolve_srgan(lr_img):
     sr_img_srgan = srgan(convert_image(lr_img, source='pil', target='imagenet-norm').unsqueeze(0).to(device))
     sr_img_srgan = sr_img_srgan.squeeze(0).cpu().detach()
