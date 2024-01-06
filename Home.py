@@ -3,6 +3,8 @@ import os
 import torch
 from utils import *
 from PIL import Image, ImageDraw, ImageFont, ImageColor
+from st_pages import show_pages_from_config, add_page_title
+
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -47,6 +49,7 @@ def load_images_from_folder(folder_path):
 
 
 def main():
+    show_pages_from_config()
     st.markdown('<h2 align="center">Image Super Resolution</h1>',unsafe_allow_html=True)
     # load images from the folder into a array
     folder_path="./images"

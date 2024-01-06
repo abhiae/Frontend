@@ -2,3 +2,4 @@ pip
 torch
 streamlit
 torchvision
+st-pages

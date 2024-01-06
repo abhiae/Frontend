@@ -1,0 +1,14 @@
+[[pages]]
+path = "Home.py"
+name = "Main"
+icon = ""
+
+[[pages]]
+path = "./pages/Demo.py"
+name = "SuperReolve"
+icon = ""
+
+[[pages]]
+path = "./pages/Compare.py"
+name = "Comparison"
+icon = ""
