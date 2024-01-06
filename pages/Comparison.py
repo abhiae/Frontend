@@ -19,10 +19,20 @@ def is_image(file):
     return file.type.startswith('image/')
 
 def is_not_big(img):
-    if img.height <=256 and img.width <= 256:
+    if img.height <=1024 and img.width <= 1024:
         return True
     else:
         return False
+
+def get_lr_image(hr_img):
+    lr_img = hr_img.resize((int(hr_img.width / 4), int(hr_img.height / 4)),
+                       Image.BICUBIC)
+    return lr_img
+
+def superresolve_bicubic(lr_img):
+    bicubic_img = lr_img.resize((lr_img.width*4, lr_img.height*4), Image.BICUBIC)
+    st.image(bicubic_img,caption="Bicubic")
+
     
 def superresolve_srgan(lr_img):
     sr_img_srgan = srgan(convert_image(lr_img, source='pil', target='imagenet-norm').unsqueeze(0).to(device))
@@ -36,32 +46,31 @@ def superresolve_srresnet(lr_img):
     sr_img_srresnet = convert_image(sr_img_srresnet, source='[-1, 1]', target='pil')
     st.image(sr_img_srresnet,caption="SRResNet")
 
-
 def main():
     st.markdown('<h1 align="center">Image Super Resolution</h1>',unsafe_allow_html=True)
+    st.markdown('<h3 align="center">Compare SuperResolution Results with Original Image</h3>',unsafe_allow_html=True)
 
     uploaded_file = st.file_uploader("Choose a file",type=['jpg', 'jpeg', 'png'])
     if uploaded_file is not None:
         if is_image(uploaded_file):
-            lr_img = Image.open(uploaded_file,mode='r')
-            lr_img = lr_img.convert('RGB')
-            if is_not_big(lr_img):
-                col1,col2,col3 = st.columns(3)
+            hr_img = Image.open(uploaded_file,mode='r')
+            hr_img = hr_img.convert('RGB')
+            if is_not_big(hr_img):
+                hr_img = Image.open(uploaded_file,mode='r')
+                hr_img = hr_img.convert('RGB')
+                lr_img = get_lr_image(hr_img)
+                st.image(lr_img,caption = "LR Image")
+                st.markdown("Super Resolved Images")
+                col1,col2 = st.columns(2)
                 with col1:
-                    st.markdown("Input Image")
-                    st.image(lr_img, caption="Uploaded Image")
+                    superresolve_bicubic(lr_img)
+                    superresolve_srresnet(lr_img)
                 with col2:
-                    choice=st.selectbox("Select Model",("SRResNet","SRGAN"))   
-                    convertbtn=st.button(label="Convert to High Quality", key="btn")
-                with col3:
-                    st.markdown("SuperResolved Image")
-                    if convertbtn:
-                        if choice=="SRGAN":
-                            superresolve_srgan(lr_img)
-                        elif choice=="SRResNet":
-                            superresolve_srresnet(lr_img)
+                    superresolve_srgan(lr_img)
+                    st.image(hr_img,caption="Original")
             else:
-                st.markdown("#### Caution: The image size exceeds the recommended limits of 256x256 and may cause server instability or crashes. ")
+                st.markdown("### <span style='color:red'>Caution:</span> Hardware Limitation. Can't Process Image larger than 1024x1024.",unsafe_allow_html=True)
+
     else:
         st.error("Please upload a valid image file (JPEG or PNG).")
 
